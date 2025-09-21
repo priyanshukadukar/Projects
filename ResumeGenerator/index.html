@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .add-btn {
+            background-color: var(--success);
+            margin-top: 10px;
+        }
+        
+        .remove-btn {
+            background-color: var(--accent);
+            margin-left: 10px;
+        }
+        
+        .download-btn {
+            background-color: var(--success);
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .resume {
+            padding: 30px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+        
+        .resume-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .resume-name {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+        
+        .resume-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .resume-contact {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .resume-section {
+            margin-bottom: 20px;
+        }
+        
+        .resume-section-title {
+            font-size: 1.3rem;
+            color: var(--secondary);
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .experience-item, .education-item {
+            margin-bottom: 15px;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .item-subtitle {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .item-date {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .skill {
+            background-color: var(--light);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Resume Generator</h1>
+            <p class="tagline">Create a professional resume in minutes</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="form-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="personal">Personal</div>
+                    <div class="tab" data-tab="education">Education</div>
+                    <div class="tab" data-tab="experience">Experience</div>
+                    <div class="tab" data-tab="skills">Skills</div>
+                </div>
+                
+                <div class="tab-content active" id="personal-tab">
+                    <h3 class="section-title">Personal Information</h3>
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" placeholder="Web Developer">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="john.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" placeholder="(123) 456-7890">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="New York, NY">
+                    </div>
+                    <div class="form-group">
+                        <label for="summary">Professional Summary</label>
+                        <textarea id="summary" rows="4" placeholder="Experienced web developer with 5+ years of experience..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="education-tab">
+                    <h3 class="section-title">Education</h3>
+                    <div id="education-form">
+                        <div class="form-group">
+                            <label for="school">School/University</label>
+                            <input type="text" id="school" placeholder="University of Example">
+                        </div>
+                        <div class="form-group">
+                            <label for="degree">Degree</label>
+                            <input type="text" id="degree" placeholder="Bachelor of Science in Computer Science">
+                        </div>
+                        <div class="form-group">
+                            <label for="eduDate">Date</label>
+                            <input type="text" id="eduDate" placeholder="2015 - 2019">
+                        </div>
+                        <div class="form-group">
+                            <label for="eduDescription">Description</label>
+                            <textarea id="eduDescription" rows="3" placeholder="Relevant courses, achievements, etc."></textarea>
+                        </div>
+                    </div>
+                    <button class="add-btn" id="add-education">+ Add Another Education</button>
+                </div>
+                
+                <div class="tab-content" id="experience-tab">
+                    <h3 class="section-title">Work Experience</h3>
+                    <div id="experience-form">
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" placeholder="Example Corp">
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <input type="text" id="position" placeholder="Senior Developer">
+                        </div>
+                        <div class="form-group">
+                            <label for="workDate">Date</label>
+                            <input type="text" id="workDate" placeholder Jan 2020 - Present">
+                        </div>
+                        <div class="form-group">
+                            <label for="workDescription">Description</label>
+                            <textarea id="workDescription" rows="3" placeholder="Responsibilities, achievements, etc."></textarea>
+                        </div>
+                    </div>
+                    <button class="add-btn" id="add-experience">+ Add Another Experience</button>
+                </div>
+                
+                <div class="tab-content" id="skills-tab">
+                    <h3 class="section-title">Skills</h3>
+                    <div class="form-group">
+                        <label for="skills">Skills (comma separated)</label>
+                        <input type="text" id="skills" placeholder="HTML, CSS, JavaScript, React">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preview-container">
+                <h3 class="section-title">Resume Preview</h3>
+                <div class="resume" id="resume-preview">
+                    <div class="resume-header">
+                        <h2 class="resume-name">Your Name</h2>
+                        <p class="resume-title">Your Job Title</p>
+                        <p class="resume-contact">email@example.com | (123) 456-7890 | City, State</p>
+                    </div>
+                    
+                    <div class="resume-section">
+                        <h3 class="resume-section-title">Professional Summary</h3>
+                        <p>Your professional summary will appear here.</p>
+                    </div>
+                    
+                    <div class="resume-section">
+                        <h3 class="resume-section-title">Education</h3>
+                        <p>Your education details will appear here.</p>
+                    </div>
+                    
+                    <div class="resume-section">
+                        <h3 class="resume-section-title">Experience</h3>
+                        <p>Your work experience will appear here.</p>
+                    </div>
+                    
+                    <div class="resume-section">
+                        <h3 class="resume-section-title">Skills</h3>
+                        <p>Your skills will appear here.</p>
+                    </div>
+                </div>
+                
+                <button class="download-btn" id="download-btn">Download Resume as PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab and content
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Form input elements
+            const fullNameInput = document.getElementById('fullName');
+            const jobTitleInput = document.getElementById('jobTitle');
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const locationInput = document.getElementById('location');
+            const summaryInput = document.getElementById('summary');
+            const schoolInput = document.getElementById('school');
+            const degreeInput = document.getElementById('degree');
+            const eduDateInput = document.getElementById('eduDate');
+            const eduDescriptionInput = document.getElementById('eduDescription');
+            const companyInput = document.getElementById('company');
+            const positionInput = document.getElementById('position');
+            const workDateInput = document.getElementById('workDate');
+            const workDescriptionInput = document.getElementById('workDescription');
+            const skillsInput = document.getElementById('skills');
+            
+            // Preview elements
+            const resumePreview = document.getElementById('resume-preview');
+            
+            // Education and experience arrays
+            let education = [];
+            let experiences = [];
+            
+            // Add education button
+            document.getElementById('add-education').addEventListener('click', function() {
+                if (schoolInput.value && degreeInput.value) {
+                    education.push({
+                        school: schoolInput.value,
+                        degree: degreeInput.value,
+                        date: eduDateInput.value,
+                        description: eduDescriptionInput.value
+                    });
+                    
+                    // Clear the form
+                    schoolInput.value = '';
+                    degreeInput.value = '';
+                    eduDateInput.value = '';
+                    eduDescriptionInput.value = '';
+                    
+                    updateResumePreview();
+                }
+            });
+            
+            // Add experience button
+            document.getElementById('add-experience').addEventListener('click', function() {
+                if (companyInput.value && positionInput.value) {
+                    experiences.push({
+                        company: companyInput.value,
+                        position: positionInput.value,
+                        date: workDateInput.value,
+                        description: workDescriptionInput.value
+                    });
+                    
+                    // Clear the form
+                    companyInput.value = '';
+                    positionInput.value = '';
+                    workDateInput.value = '';
+                    workDescriptionInput.value = '';
+                    
+                    updateResumePreview();
+                }
+            });
+            
+            // Update resume preview as user types
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateResumePreview);
+            });
+            
+            // Download button
+            document.getElementById('download-btn').addEventListener('click', function() {
+                const element = document.getElementById('resume-preview');
+                const opt = {
+                    margin: 10,
+                    filename: 'my-resume.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).save();
+            });
+            
+            // Function to update resume preview
+            function updateResumePreview() {
+                // Update personal info
+                const nameElement = resumePreview.querySelector('.resume-name');
+                const titleElement = resumePreview.querySelector('.resume-title');
+                const contactElement = resumePreview.querySelector('.resume-contact');
+                const summaryElement = resumePreview.querySelector('.resume-section:nth-child(2) p');
+                
+                nameElement.textContent = fullNameInput.value || 'Your Name';
+                titleElement.textContent = jobTitleInput.value || 'Your Job Title';
+                contactElement.textContent = `${emailInput.value || 'email@example.com'} | ${phoneInput.value || '(123) 456-7890'} | ${locationInput.value || 'City, State'}`;
+                summaryElement.textContent = summaryInput.value || 'Your professional summary will appear here.';
+                
+                // Update education
+                const educationElement = resumePreview.querySelector('.resume-section:nth-child(3)');
+                if (education.length > 0) {
+                    educationElement.innerHTML = '<h3 class="resume-section-title">Education</h3>';
+                    education.forEach(edu => {
+                        const eduHTML = `
+                            <div class="education-item">
+                                <div class="item-title">${edu.school}</div>
+                                <div class="item-subtitle">${edu.degree}</div>
+                                <div class="item-date">${edu.date}</div>
+                                <p>${edu.description}</p>
+                            </div>
+                        `;
+                        educationElement.innerHTML += eduHTML;
+                    });
+                } else {
+                    educationElement.innerHTML = '<h3 class="resume-section-title">Education</h3><p>Your education details will appear here.</p>';
+                }
+                
+                // Update experience
+                const experienceElement = resumePreview.querySelector('.resume-section:nth-child(4)');
+                if (experiences.length > 0) {
+                    experienceElement.innerHTML = '<h3 class="resume-section-title">Experience</h3>';
+                    experiences.forEach(exp => {
+                        const expHTML = `
+                            <div class="experience-item">
+                                <div class="item-title">${exp.company}</div>
+                                <div class="item-subtitle">${exp.position}</div>
+                                <div class="item-date">${exp.date}</div>
+                                <p>${exp.description}</p>
+                            </div>
+                        `;
+                        experienceElement.innerHTML += expHTML;
+                    });
+                } else {
+                    experienceElement.innerHTML = '<h3 class="resume-section-title">Experience</h3><p>Your work experience will appear here.</p>';
+                }
+                
+                // Update skills
+                const skillsElement = resumePreview.querySelector('.resume-section:nth-child(5)');
+                if (skillsInput.value) {
+                    const skillsArray = skillsInput.value.split(',').map(skill => skill.trim());
+                    skillsElement.innerHTML = '<h3 class="resume-section-title">Skills</h3><div class="skills-list"></div>';
+                    const skillsList = skillsElement.querySelector('.skills-list');
+                    
+                    skillsArray.forEach(skill => {
+                        if (skill) {
+                            const skillElement = document.createElement('div');
+                            skillElement.className = 'skill';
+                            skillElement.textContent = skill;
+                            skillsList.appendChild(skillElement);
+                        }
+                    });
+                } else {
+                    skillsElement.innerHTML = '<h3 class="resume-section-title">Skills</h3><p>Your skills will appear here.</p>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
